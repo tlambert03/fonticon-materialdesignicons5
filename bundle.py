@@ -1,22 +1,43 @@
 import keyword
 from typing import Dict, List, Tuple, Union
 from pathlib import Path
+import urllib.request
+from zipfile import ZipFile
+import io
+import shutil
 
-VERSION = "5.15.4"
+VERSION = "5.9.55"
 PKG_DIR = Path(__file__).parent / "fonticon_mdi5"
+URL = "https://github.com/Templarian/MaterialDesign-Webfont/archive/master.zip"
+CLASSNAME = "MDI5"
 
 
-def get_data(version: str, pkg_dir: str) -> List[Tuple[Dict[str, str], str, str]]:
-    """This function should return a list of OTF entries.
-
-    Each entry is a 3-tuple:
-        1. a charmap dict: {font label -> 4-letter unicode string}
-        2. the name of the OTF file (should be placed in the font_dir)
-        3. a name for the Enum class that will represent this OTF file.
-    """
+def get_data(version: str, pkg_dir: str) -> List[Tuple[Dict[str, str], Path, str]]:
     font_dir = Path(pkg_dir) / "fonts"
     font_dir.mkdir(exist_ok=True)
-    ...
+    ttfs = []
+
+    with urllib.request.urlopen(URL) as response:
+        with ZipFile(io.BytesIO(response.read())) as thezip:
+            for zipinfo in thezip.infolist():
+                if zipinfo.filename.endswith(".ttf") or "LICENSE" in zipinfo.filename:
+                    dest = font_dir / Path(zipinfo.filename).name
+                    with thezip.open(zipinfo) as source, open(dest, "wb") as target:
+                        shutil.copyfileobj(source, target)
+                        print("writing", dest)
+                    if str(dest).endswith("ttf"):
+                        ttfs.append(dest)
+                elif zipinfo.filename.endswith("scss/_variables.scss"):
+                    with thezip.open(zipinfo) as f:
+                        metadata = f.read()
+    charmap = {}
+    for line in metadata.decode().split("$mdi-icons: (")[1].rstrip(");").splitlines():
+        if not line.strip():
+            continue
+        key, val = line.lstrip("\" '").split('":')
+        charmap[key] = chr(int(val.strip(" ,"), 16))
+
+    return [(charmap, ttfs[0], CLASSNAME)]
 
 
 def _normkey(key: str):
@@ -47,10 +68,10 @@ def build(data, version, pkg):
     init = f"__version__ = {version!r}\n\n"
     _all = []
 
-    for charmap, otf, name in data:
-        code = TEMPLATE.format(name=name, file=otf.name) + "\n\n"
+    for charmap, ttf, name in data:
+        code = TEMPLATE.format(name=name, file=ttf.name) + "\n\n"
         for key, glpyh in charmap.items():
-            code += f"    {_normkey(key)} = '\\u{glpyh}'\n"
+            code += f"    {_normkey(key)} = {glpyh!r}\n"
 
         dest = Path(pkg) / f"{name.lower()}.py"
         dest.write_text(code)
@@ -65,7 +86,7 @@ def build(data, version, pkg):
 
 
 def main(version: str, root: Union[Path, str]):
-    build(get_data(version, root), version, root)
+    build(get_data(version, str(root)), version, root)
 
 
 if __name__ == "__main__":
