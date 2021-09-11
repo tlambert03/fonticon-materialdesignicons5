@@ -6,10 +6,10 @@ from zipfile import ZipFile
 import io
 import shutil
 
-VERSION = "5.9.55"
-PKG_DIR = Path(__file__).parent / "fonticon_mdi5"
-URL = "https://github.com/Templarian/MaterialDesign-Webfont/archive/master.zip"
-CLASSNAME = "MDI5"
+VERSION = "6.1.95"
+PKG_DIR = Path(__file__).parent / "fonticon_mdi6"
+URL = f"https://github.com/Templarian/MaterialDesign-Webfont/archive/refs/tags/v{VERSION}.zip"
+CLASSNAME = f"MDI{VERSION[0]}"
 
 
 def get_data(version: str, pkg_dir: str) -> List[Tuple[Dict[str, str], Path, str]]:
@@ -53,14 +53,14 @@ def _normkey(key: str):
 
 TEMPLATE = """
 from pathlib import Path
-from enum import Enum
+
+from ._iconfont import IconFont
+
+FONTS = Path(__file__).parent / "fonts"
 
 
-class {name}(Enum):
-    @classmethod
-    def _font_file(self) -> str:
-        fonts = Path(__file__).parent / "fonts"
-        return str(fonts / "{file}")
+class {name}(IconFont):
+    __font_file__ = str(FONTS / "{file}")
 """.strip()
 
 
