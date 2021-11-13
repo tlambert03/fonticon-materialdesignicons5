@@ -6,7 +6,7 @@ from zipfile import ZipFile
 import io
 import shutil
 
-VERSION = "6.1.95"
+VERSION = "6.5.95"
 PKG_DIR = Path(__file__).parent / "fonticon_mdi6"
 URL = f"https://github.com/Templarian/MaterialDesign-Webfont/archive/refs/tags/v{VERSION}.zip"
 CLASSNAME = f"MDI{VERSION[0]}"
