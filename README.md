@@ -1,13 +1,12 @@
 # fonticon-materialdesignicons6
 
-[![License](https://img.shields.io/pypi/l/fonticon-materialdesignicons6.svg?color=green)](https://github.com/tlambert03/fonticon-materialdesignicons6/raw/master/LICENSE)
+[![License](https://img.shields.io/pypi/l/fonticon-materialdesignicons6.svg?color=green)](https://github.com/pyapp-kit/fonticon-materialdesignicons6/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/fonticon-materialdesignicons6.svg?color=green)](https://pypi.org/project/fonticon-materialdesignicons6)
 [![Python Version](https://img.shields.io/pypi/pyversions/fonticon-materialdesignicons6.svg?color=green)](https://python.org)
 
+[Material Design Icons](https://github.com/Templarian/MaterialDesign-Webfont) extension for [superqt font icons](https://pyapp-kit.github.io/superqt/utilities/fonticon/)
 
-Material Design Icons extension for superqt font icons
-
-https://github.com/templarian/MaterialDesign
+<https://github.com/templarian/MaterialDesign>
 
 ```sh
 pip install superqt fonticon-materialdesignicons6
@@ -28,3 +27,8 @@ btn2.show()
 
 app.exec_()
 ```
+
+### Dev note
+
+To update this package for new fonticon releases, update the `VERSION = ...` string
+in `scripts/bundle.py`, and rerun `python scripts/bundle.py`.
