@@ -1,6 +1,6 @@
-from superqt.fonticon import icon
 from fonticon_mdi6 import MDI6
 from qtpy.QtWidgets import QPushButton
+from superqt.fonticon import icon
 
 
 def test_FA5S(qtbot):

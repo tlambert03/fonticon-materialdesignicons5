@@ -1,5 +1,10 @@
+from typing import Any, TypeVar
+
+T = TypeVar("T", bound="IconFontMeta")
+
+
 class IconFontMeta(type):
-    def __new__(cls, name: str, bases: tuple, namespace: dict):
+    def __new__(cls: "type[T]", name: str, bases: tuple, namespace: dict) -> T:
         assert "__font_file__" in namespace, "Font must have a `__font_file__` attr!"
         # update all values to be `key.unicode`
         namespace.update(
@@ -12,7 +17,7 @@ class IconFontMeta(type):
         namespace["__slots__"] = ()
         return super().__new__(cls, name, bases, namespace)
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value: Any) -> None:
         raise TypeError("{self!r} is a frozen class")
 
 
