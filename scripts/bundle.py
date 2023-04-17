@@ -1,13 +1,14 @@
-import keyword
-from typing import Dict, List, Tuple, Union
-from pathlib import Path
-import urllib.request
-from zipfile import ZipFile
 import io
+import keyword
 import shutil
+import subprocess
+import urllib.request
+from pathlib import Path
+from typing import Dict, List, Tuple, Union
+from zipfile import ZipFile
 
-VERSION = "6.5.95"
-PKG_DIR = Path(__file__).parent / "fonticon_mdi6"
+VERSION = "6.9.96"
+PKG_DIR = Path(__file__).parent.parent / "src" / "fonticon_mdi6"
 URL = f"https://github.com/Templarian/MaterialDesign-Webfont/archive/refs/tags/v{VERSION}.zip"
 CLASSNAME = f"MDI{VERSION[0]}"
 
@@ -60,6 +61,7 @@ FONTS = Path(__file__).parent / "fonts"
 
 
 class {name}(IconFont):
+    '''{doc}.'''
     __font_file__ = str(FONTS / "{file}")
 """.strip()
 
@@ -69,7 +71,7 @@ def build(data, version, pkg):
     _all = []
 
     for charmap, ttf, name in data:
-        code = TEMPLATE.format(name=name, file=ttf.name) + "\n\n"
+        code = TEMPLATE.format(name=name, doc=ttf.stem, file=ttf.name) + "\n\n"
         for key, glpyh in charmap.items():
             code += f"    {_normkey(key)} = {glpyh!r}\n"
 
@@ -81,12 +83,13 @@ def build(data, version, pkg):
         _all.append(name)
 
     init = f"__all__ = {_all!r}\n" + init
-    (Path(pkg) / f"__init__.py").write_text(init)
+    (Path(pkg) / "__init__.py").write_text(init)
     print("writing __init__.py")
 
 
 def main(version: str, root: Union[Path, str]):
     build(get_data(version, str(root)), version, root)
+    subprocess.run(["pre-commit", "run", "--all-files"])
 
 
 if __name__ == "__main__":
